@@ -1,12 +1,13 @@
 <template>
   <div class="app">
     <header class="toolbar">
-      <button @click="toggleMenu" class="menu-button">☰</button>
-      <h1>Minha Aplicação</h1>
       <div class="user-info">
         <img class="avatar" :src="user.avatarUrl" alt="Avatar" />
         <span>{{ user.name }}</span>
       </div>
+      <h1 class="title">Crud Vue3 PInia</h1>
+      <button @click="toggleMenu" class="menu-button">☰</button>
+      
     </header>
 
     <nav :class="['sidebar', { 'collapsed': isMenuCollapsed }]">
@@ -50,6 +51,9 @@ export default defineComponent({
 <style scoped>
 .app {
   display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0 auto;
   height: 100vh;
 }
 
@@ -60,6 +64,13 @@ export default defineComponent({
   padding: 1rem;
   background-color: #333;
   color: white;
+  width: 100%;
+  height: 100px;
+  
+}
+
+.title {
+  text-align: center;
 }
 
 .menu-button {
@@ -68,6 +79,7 @@ export default defineComponent({
   border: none;
   color: white;
   cursor: pointer;
+  display: flex;
 }
 
 .user-info {
@@ -103,10 +115,16 @@ export default defineComponent({
 .sidebar a {
   color: white;
   text-decoration: none;
+  transition: .5s;
+}
+
+.sidebar a:hover {
+  color: blue;
 }
 
 .content {
-  flex-grow: 1;
+  display: flex;
+  justify-content: center;
   padding: 2rem;
 }
 </style>
