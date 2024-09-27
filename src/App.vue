@@ -33,10 +33,10 @@ export default defineComponent({
       isMenuCollapsed.value = !isMenuCollapsed.value;
     };
 
-    // const user = {
-    //   name: "Guilherme Lopes",
-    //   avatarUrl: "https://via.placeholder.com/50" 
-    // };
+    const user = {
+      name: "Guilherme Lopes",
+      avatarUrl: "https://avatars.githubusercontent.com/u/60366082?v=4&size=64" 
+    };
 
     return {
       isMenuCollapsed,
