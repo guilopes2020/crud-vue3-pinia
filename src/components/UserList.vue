@@ -1,132 +1,144 @@
 <template>
-  <div>
-    <div class="filters">
-      <input v-model="filters.name" placeholder="Filtrar por nome" />
-      <input v-model="filters.email" placeholder="Filtrar por email" />
-      <input v-model="filters.cpfCnpj" placeholder="Filtrar por CPF/CNPJ" />
-      <select v-model="filters.status">
-        <option value="">Todos os Status</option>
-        <option value="active">Ativo</option>
-        <option value="inactive">Inativo</option>
-      </select>
-    </div>
-
+  <div class="user-list-container">
+    <h1>Usuários</h1>
+    <button class="add-user-btn" @click="openModal()">Adicionar Usuário</button>
     <table>
       <thead>
         <tr>
-          <th @click="sortBy('name')">Nome <span v-if="sort.column === 'name'">{{ sortDirection }}</span></th>
-          <th @click="sortBy('email')">Email <span v-if="sort.column === 'email'">{{ sortDirection }}</span></th>
-          <th @click="sortBy('phone')">Telefone <span v-if="sort.column === 'phone'">{{ sortDirection }}</span></th>
-          <th @click="sortBy('cpfCnpj')">CPF/CNPJ <span v-if="sort.column === 'cpfCnpj'">{{ sortDirection }}</span></th>
-          <th @click="sortBy('monthlyIncome')">Ganho Mensal <span v-if="sort.column === 'monthlyIncome'">{{ sortDirection }}</span></th>
-          <th @click="sortBy('status')">Status <span v-if="sort.column === 'status'">{{ sortDirection }}</span></th>
+          <th @click="sortBy('name')">Nome</th>
+          <th @click="sortBy('email')">Email</th>
+          <th @click="sortBy('status')">Status</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in filteredUsers" :key="user.id">
+        <tr v-for="user in sortedUsers" :key="user.id">
           <td>{{ user.name }}</td>
           <td>{{ user.email }}</td>
-          <td>{{ user.phone }}</td>
-          <td>{{ user.cpfCnpj }}</td>
-          <td>{{ user.monthlyIncome }}</td>
-          <td>{{ user.status === 'active' ? 'Ativo' : 'Inativo' }}</td>
+          <td>{{ user.status }}</td>
           <td>
-            <button @click="$emit('edit', user)">Editar</button>
-            <button @click="$emit('delete', user.id)">Excluir</button>
+            <button class="edit-btn" @click="openModal(user)">Editar</button>
+            <button class="delete-btn" @click="deleteUser(user.id)">Excluir</button>
           </td>
         </tr>
       </tbody>
     </table>
 
+    <UserForm v-if="isModalOpen" :editUser="selectedUser" @close="closeModal" />
   </div>
 </template>
-  
-  <script lang="ts">
-  import { defineComponent, ref, computed } from 'vue';
-  import type { User } from '../stores/userStore';
-  
-  export default defineComponent({
-    props: {
-      users: {
-        type: Array as () => User[],
-        required: true,
-      },
-    },
-    setup(props) {
-      const filters = ref({
-        name: '',
-        email: '',
-        cpfCnpj: '',
-        status: '',
-      });
-  
-      const sort = ref({
-        column: '',
-        direction: 'asc' as 'asc' | 'desc',
-      });
-  
-      const sortBy = (column: keyof User) => {
-        if (sort.value.column === column) {
-          sort.value.direction = sort.value.direction === 'asc' ? 'desc' : 'asc';
-        } else {
-          sort.value.column = column;
-          sort.value.direction = 'asc';
-        }
-      };
-  
-      const filteredUsers = computed(() => {
-        let filtered = props.users.filter(user => {
-          return (
-            (!filters.value.name || user.name.toLowerCase().includes(filters.value.name.toLowerCase())) &&
-            (!filters.value.email || user.email.toLowerCase().includes(filters.value.email.toLowerCase())) &&
-            (!filters.value.cpfCnpj || user.cpfCnpj.includes(filters.value.cpfCnpj)) &&
-            (!filters.value.status || user.status === filters.value.status)
-          );
-        });
-  
-        if (sort.value.column) {
-          filtered.sort((a, b) => {
-            const sortValue = sort.value.direction === 'asc' ? 1 : -1;
-            if (a[sort.value.column] < b[sort.value.column]) return -sortValue;
-            if (a[sort.value.column] > b[sort.value.column]) return sortValue;
-            return 0;
-          });
-        }
-  
-        return filtered;
-      });
-  
-      const sortDirection = computed(() => (sort.value.direction === 'asc' ? '↑' : '↓'));
-  
-      return {
-        filters,
-        filteredUsers,
-        sortBy,
-        sortDirection,
-        sort,
-      };
-    },
-  });
-  </script>
-  
-  <style scoped>
-  .filters {
-    margin-bottom: 1rem;
-  }
-  
-  .filters input,
-  .filters select {
-    margin-right: 10px;
-  }
-  
-  th {
-    cursor: pointer;
-    user-select: none;
-  }
-  
-  th span {
-    margin-left: 5px;
-  }
-  </style>
-  
+
+<script lang="ts">
+import { computed, ref } from 'vue';
+import { useUserStore, type User } from '../stores/userStore';
+import UserForm from './UserForm.vue';
+
+export default {
+  components: { UserForm },
+  setup() {
+    const store = useUserStore();
+    const isModalOpen = ref(false);
+    const selectedUser = ref<User | null>(null);
+
+    const openModal = (user: User | null = null) => {
+      selectedUser.value = user;
+      isModalOpen.value = true;
+    };
+
+    const closeModal = () => {
+      isModalOpen.value = false;
+      selectedUser.value = null;
+    };
+
+    const deleteUser = (userId: number) => {
+      if (confirm('Você tem certeza que deseja excluir este usuário?')) {
+        store.deleteUser(userId);
+      }
+    };
+
+    const sortBy = (key: string) => {};
+
+    const sortedUsers = computed(() => store.users);
+
+    return {
+      isModalOpen,
+      openModal,
+      closeModal,
+      deleteUser,
+      sortedUsers,
+      sortBy,
+      selectedUser,
+    };
+  },
+};
+</script>
+
+<style scoped>
+.user-list-container {
+  padding: 20px;
+}
+
+h1 {
+  color: #343a40;
+}
+
+.add-user-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.add-user-btn:hover {
+  background-color: #218838;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+th {
+  cursor: pointer;
+}
+
+th:hover {
+  background-color: #f1f1f1;
+}
+
+.edit-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background-color: #0056b3;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+</style>
