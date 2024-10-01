@@ -37,3 +37,12 @@ npm run build
 ```sh
 npm run lint
 ```
+
+### Dados de Login
+
+```sh
+email: admin@example.com
+```
+```sh
+senha: 123456
+```

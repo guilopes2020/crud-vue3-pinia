@@ -7,6 +7,10 @@
         <tr>
           <th @click="sortBy('name')">Nome</th>
           <th @click="sortBy('email')">Email</th>
+          <th @click="sortBy('phone')">Phone</th>
+          <th @click="sortBy('document')">Documento</th>
+          <th @click="sortBy('monthlyIncome')">Salário</th>
+          <th @click="sortBy('status')">Endereço</th>
           <th @click="sortBy('status')">Status</th>
           <th>Ações</th>
         </tr>
@@ -15,6 +19,10 @@
         <tr v-for="user in sortedUsers" :key="user.id">
           <td>{{ user.name }}</td>
           <td>{{ user.email }}</td>
+          <td>{{ user.phone }}</td>
+          <td>{{ user.document }}</td>
+          <td>{{ user.monthlyIncome }}</td>
+          <td>{{ user.address }}</td>
           <td>{{ user.status }}</td>
           <td>
             <button class="edit-btn" @click="openModal(user)">Editar</button>
