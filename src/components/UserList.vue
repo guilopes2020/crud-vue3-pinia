@@ -2,6 +2,7 @@
   <div class="user-list-container">
     <h1>Usuários</h1>
     <button class="add-user-btn" @click="openModal()">Adicionar Usuário</button>
+    <p v-if="message" :class="messageType">{{ message }}</p>
     <table>
       <thead>
         <tr>
@@ -40,11 +41,13 @@
 import { computed, ref } from 'vue';
 import { useUserStore, type User } from '../stores/userStore';
 import UserForm from './UserForm.vue';
+import { useMessageStore } from '../stores/messageStore';
 
 export default {
   components: { UserForm },
   setup() {
     const store = useUserStore();
+    const messageStore = useMessageStore();
     const isModalOpen = ref(false);
     const selectedUser = ref<User | null>(null);
 
@@ -61,6 +64,7 @@ export default {
     const deleteUser = (userId: number) => {
       if (confirm('Você tem certeza que deseja excluir este usuário?')) {
         store.deleteUser(userId);
+        messageStore.setMessage('Usuário cadastrado com sucesso!', 'success');
       }
     };
 
@@ -76,6 +80,8 @@ export default {
       sortedUsers,
       sortBy,
       selectedUser,
+      message: messageStore.message,
+      messageType: messageStore.messageType
     };
   },
 };

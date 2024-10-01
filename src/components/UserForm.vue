@@ -15,9 +15,10 @@
         <input v-model="cep" @blur="fetchAddress" placeholder="CEP" required />
         <input v-model="user.address" placeholder="Endereço" required />
 
-        <button type="submit">{{ isEditing ? 'Salvar' : 'Adicionar' }}</button>
+        <button type="submit" :disabled="isLoading">{{ isLoading ? 'Carregando...' : (editUser ? 'Salvar' : 'Cadastrar') }}</button>
         <button type="button" @click="close">Cancelar</button>
       </form>
+      <button class="close" @click="$emit('close')">Fechar</button>
     </div>
   </div>
 </template>
@@ -26,6 +27,7 @@
 import { ref, defineComponent, onMounted } from 'vue';
 import { useUserStore, type User } from '../stores/userStore';
 import axios from 'axios';
+import { useMessageStore } from '../stores/messageStore';
 
 export default defineComponent({
   props: {
@@ -49,6 +51,9 @@ export default defineComponent({
     });
     const cep = ref('');
 
+    const isLoading = ref(false);
+    const messageStore = useMessageStore(); // Usando a store de mensagens
+
     // Se estivermos editando um usuário, preencher os dados no formulário
     onMounted(() => {
       if (props.editUser) {
@@ -71,11 +76,14 @@ export default defineComponent({
 
     const submitForm = () => {
       store.setLoading(true);
+      isLoading.value = true;
       setTimeout(() => {
         if (isEditing.value) {
           store.editUser(user.value);
+          messageStore.setMessage('Usuário cadastrado/atualizado com sucesso!', 'success');
         } else {
           store.addUser(user.value);
+          messageStore.setMessage('Usuário cadastrado/atualizado com sucesso!', 'success');
         }
         store.setLoading(false);
         emit('close'); // Fechar o modal após o submit
@@ -88,6 +96,7 @@ export default defineComponent({
       user,
       cep,
       isEditing,
+      isLoading,
       fetchAddress,
       submitForm,
       close,

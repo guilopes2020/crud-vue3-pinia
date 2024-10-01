@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { ref } from 'vue';
-import Navbar from './components/Navbar.vue';
+import Navbar from './components/UserNavbar.vue';
 
 export default {
   components: {
